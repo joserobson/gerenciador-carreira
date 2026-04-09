@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserProfile {
+  id        String   @id @default(uuid())
+  name      String?
+  email     String?
+  title     String?  // e.g. Desenvolvedor Web
+  summary   String?
+  skills    String[]
+  portfolio String?
+  cvPath    String?  // temp path to uploaded CV
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id            String   @id @default(uuid())
+  name          String
+  localPath     String   @unique
+  description   String?
+  role          String? // Detects if Dev, Tech Lead or Architect based on git
+  technologies  String[]
+  challenges    String?
+  solutions     String?
+  lastAnalysedAt DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Platform {
+  id           String   @id @default(uuid())
+  name         String   @unique // e.g. Geekhunter
+  description  String?
+  fieldsSchema String?  // JSON string outlining fields needed to fill
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  generatedData PlatformData[]
+}
+
+model PlatformData {
+  id         String   @id @default(uuid())
+  platformId String
+  data       String   // JSON string of the filled data
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  platform Platform @relation(fields: [platformId], references: [id])
+}

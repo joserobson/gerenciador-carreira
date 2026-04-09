@@ -1,0 +1,184 @@
+{
+    "perfil_geekhunter": {
+        "etapa_1_dados_gerais": {
+            "campos": [
+                {
+                    "campo": "Nome completo",
+                    "obrigatorio": true,
+                    "dica": "Use seu nome completo. Evite apelidos ou abreviações."
+                },
+                {
+                    "campo": "Cargo atual",
+                    "obrigatorio": false,
+                    "dica": "Use 'Senior Software Engineer & Software Architect'. Evite títulos vagos como 'Dev' ou 'Programador'."
+                },
+                {
+                    "campo": "Área de atuação",
+                    "obrigatorio": true,
+                    "dica": "Selecione 'Desenvolvimento Full Stack'. Não escolha só Back-end — você tem Angular forte."
+                },
+                {
+                    "campo": "Anos de experiência",
+                    "obrigatorio": true,
+                    "dica": "Selecione 15+ anos. Seja coerente com o que está nas experiências."
+                },
+                {
+                    "campo": "Momento profissional",
+                    "obrigatorio": true,
+                    "dica": "Selecione 'Empregado, mas aberto a oportunidades'. Nunca selecione 'não procuro ativamente' — a GeekHunter não prioriza esses perfis."
+                },
+                {
+                    "campo": "Modalidade de trabalho",
+                    "obrigatorio": true,
+                    "dica": "Marque Remoto como prioritário. Se marcar Híbrido, informe Varginha/MG ou região."
+                },
+                {
+                    "campo": "Interesse em vagas no exterior",
+                    "obrigatorio": true,
+                    "dica": "Marque Sim. Seu perfil será exibido em inglês — seu site já está em inglês, ótimo."
+                },
+                {
+                    "campo": "Nível de inglês",
+                    "obrigatorio": true,
+                    "dica": "Marque 'Intermediário' ou 'Avançado'. Ao marcar Fluente você se compromete a fazer entrevistas em inglês."
+                },
+                {
+                    "campo": "Pretensão salarial",
+                    "obrigatorio": true,
+                    "dica": "Para sênior .NET remoto, R$12.000–18.000 CLT ou R$15.000–22.000 PJ é faixa realista em 2025."
+                },
+                {
+                    "campo": "Tipo de contrato desejado",
+                    "obrigatorio": true,
+                    "dica": "Marque PJ e CLT. Marcar só PJ limita o número de empresas que te verão."
+                }
+            ]
+        },
+        "etapa_2_habilidades": {
+            "campos": [
+                {
+                    "campo": "Habilidades principais (destaque 2)",
+                    "obrigatorio": true,
+                    "dica": "Destaque '.NET Core / C#' e 'Angular'. São as que aparecem primeiro no seu card para as empresas.",
+                    "sugestao": [
+                        ".NET Core / C#",
+                        "Angular"
+                    ]
+                },
+                {
+                    "campo": "Demais habilidades",
+                    "obrigatorio": false,
+                    "dica": "Adicione todas que domina. Mais habilidades = mais filtros de busca te encontram.",
+                    "sugestao": [
+                        "TypeScript",
+                        "RxJS",
+                        "SQL Server",
+                        "PostgreSQL",
+                        "Entity Framework",
+                        "Microservices",
+                        "Docker",
+                        "Azure",
+                        "RabbitMQ",
+                        "Clean Architecture",
+                        "SOLID",
+                        "Git",
+                        "YARP",
+                        "JWT",
+                        "Redis"
+                    ]
+                }
+            ]
+        },
+        "etapa_3_biografia": {
+            "campos": [
+                {
+                    "campo": "Biografia / Apresentação",
+                    "obrigatorio": true,
+                    "limite_caracteres": "sem limite definido, mas seja conciso",
+                    "dica": "Não insira links (LinkedIn, GitHub) — a plataforma bloqueia. Estruture em 3 blocos: quem você é + projetos relevantes + o que busca.",
+                    "sugestao": "Engenheiro de Software Sênior e Arquiteto com 15+ anos em sistemas enterprise com .NET Core, C# e Angular. Especializado em modernização de sistemas legados, microsserviços e integrações complexas. Atuei 7 anos em sistemas mission-critical para o ONS e liderei migração de plataforma financeira de GWT/.NET Framework para Angular 18 + .NET Core 8 com API Gateway YARP. Em projeto para o governo federal, entreguei solução com redução de 70% nos custos operacionais. Busco oportunidades remotas como Tech Lead ou Arquiteto de Software."
+                }
+            ]
+        },
+        "etapa_4_experiencias": {
+            "campos": [
+                {
+                    "campo": "Empresa",
+                    "obrigatorio": true,
+                    "dica": "Informe o nome da empresa. Pode importar do LinkedIn automaticamente."
+                },
+                {
+                    "campo": "Cargo",
+                    "obrigatorio": true,
+                    "dica": "Use o cargo em inglês se marcar interesse em vagas no exterior."
+                },
+                {
+                    "campo": "Período",
+                    "obrigatorio": true,
+                    "dica": "Informe mês e ano de início e fim. Para emprego atual, deixe 'até o momento'."
+                },
+                {
+                    "campo": "Descrição da experiência",
+                    "obrigatorio": true,
+                    "dica": "Use o método STAR: Situação → Ação → Resultado. Inclua tecnologias usadas e impacto quantificado quando possível. Ex: 'Liderei migração de sistema legado para .NET Core 8, reduzindo tempo de deploy em 60%'."
+                },
+                {
+                    "campo": "Habilidades da experiência",
+                    "obrigatorio": false,
+                    "dica": "Adicione as tecnologias usadas especificamente naquela experiência. Ajuda o algoritmo a ranquear seu perfil."
+                }
+            ]
+        },
+        "etapa_5_formacao": {
+            "campos": [
+                {
+                    "campo": "Curso / Instituição",
+                    "obrigatorio": false,
+                    "dica": "Preencha mesmo sendo opcional — aumenta o score do perfil. Inclua graduação e MBA."
+                },
+                {
+                    "campo": "Status da formação",
+                    "obrigatorio": false,
+                    "dica": "Selecione 'Concluído'. Se tiver em andamento, informe também."
+                },
+                {
+                    "campo": "Certificações",
+                    "obrigatorio": false,
+                    "dica": "Adicione individualmente: 'MS: Programming in C#', 'MCPS: Microsoft Certified Professional', 'Software Architecture .NET'. Certificações Microsoft têm peso alto para empresas que usam stack Microsoft."
+                }
+            ]
+        },
+        "etapa_6_links_projetos": {
+            "campos": [
+                {
+                    "campo": "LinkedIn",
+                    "obrigatorio": false,
+                    "dica": "Fundamental. A GeekHunter importa dados do LinkedIn automaticamente. Mantenha atualizado e em inglês se marcar exterior.",
+                    "valor": "linkedin.com/in/jose-robson-assis"
+                },
+                {
+                    "campo": "GitHub",
+                    "obrigatorio": false,
+                    "dica": "Adicione mesmo que tenha poucos repositórios públicos. Empresas verificam.",
+                    "valor": "github.com/joserobson"
+                },
+                {
+                    "campo": "Site pessoal / portfólio",
+                    "obrigatorio": false,
+                    "dica": "Seu site em inglês é um diferencial forte — poucos candidatos têm. Adicione.",
+                    "valor": "zerobsondev.netlify.app"
+                },
+                {
+                    "campo": "Projetos",
+                    "obrigatorio": false,
+                    "dica": "Descreva projetos relevantes com tecnologias usadas e link quando possível. Use os 3 cases que montamos: SobControle, ONS e Bolsa-Verde."
+                }
+            ]
+        },
+        "pontuacao": {
+            "minimo_aprovacao": 120,
+            "prazo_revisao": "até 2 dias úteis",
+            "dica": "Perfil 100% preenchido com bio + experiências com descrição + links + certificações deve ultrapassar 180 pontos facilmente."
+        }
+    }
+}

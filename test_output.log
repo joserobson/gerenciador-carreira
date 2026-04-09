@@ -1,0 +1,87 @@
+
+> gerenciador-carreira@0.1.0 test
+> jest
+
+PASS src/lib/ai.test.ts
+PASS src/lib/git.test.ts
+  ÔùÅ Console
+
+    console.error
+      Error executing git command: Error: Git failed
+          at D:\ia-workspace\gerenciador-carreira\src\lib\git.test.ts:36:16
+          at D:\ia-workspace\gerenciador-carreira\node_modules\jest-mock\build\index.js:305:39
+          at D:\ia-workspace\gerenciador-carreira\node_modules\jest-mock\build\index.js:312:13
+          at mockConstructor (D:\ia-workspace\gerenciador-carreira\node_modules\jest-mock\build\index.js:67:19)
+          at node:internal/util:433:21
+          at new Promise (<anonymous>)
+          at mockConstructor (node:internal/util:419:12)
+          at execAsync (D:\ia-workspace\gerenciador-carreira\src\lib\git.ts:19:38)
+          at Object.<anonymous> (D:\ia-workspace\gerenciador-carreira\src\lib\git.test.ts:39:32)
+          at Promise.finally.completed (D:\ia-workspace\gerenciador-carreira\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (D:\ia-workspace\gerenciador-carreira\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (D:\ia-workspace\gerenciador-carreira\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (D:\ia-workspace\gerenciador-carreira\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at D:\ia-workspace\gerenciador-carreira\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (D:\ia-workspace\gerenciador-carreira\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (D:\ia-workspace\gerenciador-carreira\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (D:\ia-workspace\gerenciador-carreira\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (D:\ia-workspace\gerenciador-carreira\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (D:\ia-workspace\gerenciador-carreira\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (D:\ia-workspace\gerenciador-carreira\node_modules\jest-runner\build\testWorker.js:275:16)
+          at runTest (D:\ia-workspace\gerenciador-carreira\node_modules\jest-runner\build\testWorker.js:343:7)
+          at Object.worker (D:\ia-workspace\gerenciador-carreira\node_modules\jest-runner\build\testWorker.js:497:12)
+
+      25 |     return stdout;
+      26 |   } catch (error) {
+    > 27 |     console.error("Error executing git command:", error);
+         |             ^
+      28 |     throw error;
+      29 |   }
+      30 | }
+
+      at error (src/lib/git.ts:27:13)
+      at Object.<anonymous> (src/lib/git.test.ts:39:5)
+
+FAIL src/app/api/upload-cv/route.test.ts
+  ÔùÅ Console
+
+    console.error
+      API Error in upload-cv: Error: Setting up fake worker failed: "A dynamic import callback was invoked without --experimental-vm-modules".
+          at D:\ia-workspace\gerenciador-carreira\node_modules\pdf-parse\node_modules\pdfjs-dist\legacy\build\pdf.mjs:21325:58
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+      83 |
+      84 |   } catch (error: any) {
+    > 85 |     console.error("API Error in upload-cv:", error);
+         |             ^
+      86 |     return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
+      87 |   }
+      88 | }
+
+      at error (src/app/api/upload-cv/route.ts:85:13)
+      at Object.<anonymous> (src/app/api/upload-cv/route.test.ts:44:22)
+
+  ÔùÅ /api/upload-cv API Route ÔÇ║ should parse PDF, invoke AI and save to database
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 500
+
+      46 |
+      47 |     // Validations
+    > 48 |     expect(response.status).toBe(200);
+         |                             ^
+      49 |     expect(resultJson.message).toContain('com sucesso');
+      50 |     
+      51 |     // Prisma Create was called with structured parsed data
+
+      at Object.toBe (src/app/api/upload-cv/route.test.ts:48:29)
+
+Test Suites: 1 failed, 2 passed, 3 total
+Tests:       1 failed, 6 passed, 7 total
+Snapshots:   0 total
+Time:        4.793 s
+Ran all test suites.
