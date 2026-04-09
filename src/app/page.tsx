@@ -344,20 +344,31 @@ export default function Home() {
            {resultLi?.error && <p className="text-red-400 p-4 bg-red-900/20 rounded-lg border border-red-900/50">{resultLi.error}</p>}
         </section>
 
-        {/* PDF Generator */}
+        {/* PDF / CV A4 Export */}
         <section className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl">
-           <div className="flex items-center justify-between">
+           <div className="flex flex-col gap-4">
              <div>
-               <h2 className="text-2xl font-bold text-white">Exportar Currículo (PDF)</h2>
-               <p className="text-neutral-400 text-sm mt-1">Gera um currículo formatado com seus dados e projetos. Abre em nova aba — use Ctrl+P para salvar como PDF.</p>
+               <h2 className="text-2xl font-bold text-white">📄 Exportar Currículo (A4)</h2>
+               <p className="text-neutral-400 text-sm mt-1">Abre o currículo formatado em layout A4 profissional. Use <kbd className="px-1.5 py-0.5 bg-neutral-800 rounded text-xs">Ctrl+P</kbd> → <em>Salvar como PDF</em> no navegador.</p>
              </div>
-             <button
-               onClick={handleGeneratePdf}
-               disabled={loadingPdf}
-               className="flex items-center gap-2 px-6 py-3 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-lg font-bold transition-colors whitespace-nowrap"
-             >
-               {loadingPdf ? "Gerando..." : "📄 Gerar PDF"}
-             </button>
+             <div className="flex flex-col sm:flex-row gap-3">
+               <a
+                 href={`/cv?lang=${language}&github=${encodeURIComponent(githubUrl)}&linkedin=${encodeURIComponent(linkedinUrl)}`}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-bold transition-colors"
+               >
+                 📄 Abrir Currículo A4
+               </a>
+               <a
+                 href={`/cv?lang=en&github=${encodeURIComponent(githubUrl)}&linkedin=${encodeURIComponent(linkedinUrl)}`}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg font-bold transition-colors border border-neutral-700"
+               >
+                 🌐 Open Resume (EN)
+               </a>
+             </div>
            </div>
         </section>
 
