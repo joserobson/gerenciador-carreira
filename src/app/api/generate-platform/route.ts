@@ -14,22 +14,36 @@ export async function POST(req: Request) {
 
     const lowerName = platformName.toLowerCase();
 
-    // 1. Tentar ler do Preset Local (Cache Seguro) para evitar esgotar a cota da IA
+    // 1. Tentar ler de Presets Locais (Prioridade: Específico > Geral)
     try {
-      const templatePath = path.join(process.cwd(), "docs", "exemplo-plataforma.json");
-      const localPresets = JSON.parse(fs.readFileSync(templatePath, "utf-8"));
+      const specificPath = path.join(process.cwd(), "docs", `${lowerName}-schema.json`);
+      const generalPath = path.join(process.cwd(), "docs", "exemplo-plataforma.json");
       
-      const presetKey = `perfil_${lowerName}`;
-      if (localPresets[presetKey]) {
-        console.log(`[Platform Base] Found local preset for ${platformName}. Skipping AI Map.`);
-        const presetSchema = JSON.stringify(localPresets[presetKey]);
+      let presetData = null;
+      let usedFile = "";
+
+      if (fs.existsSync(specificPath)) {
+        presetData = JSON.parse(fs.readFileSync(specificPath, "utf-8"));
+        usedFile = `${lowerName}-schema.json`;
+      } else if (fs.existsSync(generalPath)) {
+        const allPresets = JSON.parse(fs.readFileSync(generalPath, "utf-8"));
+        const presetKey = `perfil_${lowerName}`;
+        if (allPresets[presetKey]) {
+          presetData = allPresets[presetKey];
+          usedFile = "exemplo-plataforma.json";
+        }
+      }
+
+      if (presetData) {
+        console.log(`[Platform Base] Found local preset for ${platformName} in ${usedFile}. Skipping AI Map.`);
+        const presetSchema = JSON.stringify(presetData);
         
         const platform = await prisma.platform.upsert({
           where: { name: lowerName },
           update: { fieldsSchema: presetSchema },
           create: {
             name: lowerName,
-            description: `Mapeado automaticamente via Preset Local.`,
+            description: `Mapeado automaticamente via Preset Local (${usedFile}).`,
             fieldsSchema: presetSchema
           }
         });
@@ -40,7 +54,7 @@ export async function POST(req: Request) {
         });
       }
     } catch (e) {
-      console.warn("Could not load docs/exemplo-plataforma.json or it's invalid.");
+      console.warn("Could not load local presets or they are invalid.");
     }
 
     // 2. Se não tem preset, manda pra IA de forma OTIMIZADA.

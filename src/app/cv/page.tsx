@@ -7,11 +7,12 @@ export const dynamic = "force-dynamic";
 export default async function CVPage({
   searchParams,
 }: {
-  searchParams: { lang?: string; github?: string; linkedin?: string; };
+  searchParams: Promise<{ lang?: string; github?: string; linkedin?: string; }>;
 }) {
-  const language = searchParams.lang === "en" ? "en" : "pt";
-  const github = searchParams.github || "";
-  const linkedin = searchParams.linkedin || "";
+  const params = await searchParams;
+  const language = params.lang === "en" ? "en" : "pt";
+  const github = params.github || "";
+  const linkedin = params.linkedin || "";
 
   const user = await prisma.userProfile.findFirst();
   const projects = await prisma.project.findMany({
@@ -50,7 +51,7 @@ export default async function CVPage({
       {/* Botão de Imprimir (Invisível na impressão real) */}
       <div className="fixed top-6 right-6 print:hidden z-50">
         <button 
-          onClick="window.print()"
+          id="print-button"
           className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full shadow-lg flex items-center gap-2"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
@@ -58,7 +59,7 @@ export default async function CVPage({
         </button>
         {/* Usamos um hack com "dangerouslySetInnerHTML" para atrelar evento inline onClick pq Server Components não aceitam onClick diretamente */}
         <script dangerouslySetInnerHTML={{__html: `
-          document.querySelector('button').addEventListener('click', () => window.print());
+          document.getElementById('print-button').onclick = () => window.print();
         `}} />
       </div>
 
@@ -135,12 +136,25 @@ export default async function CVPage({
                   <div key={project.id} className="relative pl-6 border-l-2 border-slate-300 print:break-inside-avoid">
                     <div className="absolute w-3 h-3 bg-cyan-500 rounded-full -left-[7px] top-1.5" style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}></div>
                     <div className="flex justify-between items-start mb-1">
-                      <h4 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                        {project.name}
-                      </h4>
-                      <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full uppercase tracking-wider hidden sm:block">
-                        {project.lastAnalysedAt ? new Date(project.lastAnalysedAt).getFullYear() : ""}
-                      </span>
+                      <div className="flex flex-col">
+                        <h4 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                          {project.name}
+                        </h4>
+                        <div className="flex items-center gap-2 text-xs font-semibold text-cyan-600 uppercase tracking-wider">
+                          <span>{project.company || "Project"}</span>
+                          {project.jobTitle && (
+                            <>
+                              <span className="text-gray-300">|</span>
+                              <span>{project.jobTitle}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-full uppercase tracking-wider block">
+                          {project.startDate || "N/A"} — {project.endDate || "Present"}
+                        </span>
+                      </div>
                     </div>
                     
                     <div className="flex flex-wrap gap-1 mb-3">

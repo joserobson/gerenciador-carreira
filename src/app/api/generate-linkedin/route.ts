@@ -25,6 +25,8 @@ export async function POST(req: Request) {
 
     const projectsText = projects.map(p => `
       Projeto: ${p.name}
+      Empresa: ${p.company || "N/A"}
+      Período: ${p.startDate || "N/A"} - ${p.endDate || "N/A"}
       Tecnologias: ${p.technologies.join(", ")}
       Desafios: ${p.challenges || "N/A"}
       Soluções: ${p.solutions || "N/A"}
@@ -37,23 +39,21 @@ export async function POST(req: Request) {
     const prompt = `Você é um Tech Recruiter Senior especialista em LinkedIn Profile Optimization.
 Dadas as informações abaixo sobre um profissional e seus projetos recentes extraídos via Git, construa os textos no idioma ${promptLanguage}:
 
-1. Uma seção "Sobre" (About) para o LinkedIn: persuasiva, profissional, destacando resultados, paixão por tecnologia.
-2. Para cada um dos projetos listados, gere uma descrição individual seguindo o (método STAR - context, challenge, action, result), adaptando para leitura de headhunters.
+1. Uma seção "Sobre" (About) para o LinkedIn: persuasiva, profissional, destacando resultados, paixão por tecnologia. Cite empresas e períodos se achar pertinente para dar autoridade.
+2. Não gere a seção de experiências individualmente agora, foque apenas no "Sobre".
 
 Formate a resposta em formato JSON válido e ESTRITAMENTE VÁLIDO contendo as chaves:
 {
-  "about": "string longa com parágrafos separados via \\n\\n",
-  "projects": [
-    { "id": "uuid do projeto correspondente", "name": "nome literario", "text": "o texto redigido em padrao STAR" }
-  ]
+  "about": "string longa com parágrafos separados via \\n\\n"
 }
 
 -- INFORMAÇÕES DO PROFISSIONAL --
 ${userDataText}
 
--- PROJETOS DESENVOLVIDOS RECENTEMENTE --
-${projects.map(p => `[ID: ${p.id}] Nome: ${p.name}\nTecnologias: ${p.technologies.join(", ")}\nPapel: ${p.role}\nDesafios: ${p.challenges}`).join("\n---\n")}
+-- PROJETOS E EXPERIÊNCIAS NO MASTER (SSOT) --
+${projects.map(p => `[Empresa: ${p.company}] Projeto: ${p.name}\nPeríodo: ${p.startDate}-${p.endDate}\nTecnologias: ${p.technologies.join(", ")}\nPapel: ${p.role}\nDesafios: ${p.challenges}`).join("\n---\n")}
 `;
+
 
     const summaryResult = await askLocalAI(prompt, provider as Provider);
 

@@ -23,6 +23,10 @@ model UserProfile {
 model Project {
   id            String   @id @default(uuid())
   name          String
+  company       String?  // Nome da Empresa
+  startDate     String?  // Data de início (texto livre)
+  endDate       String?  // Data de fim (texto livre)
+  jobTitle      String?  // O cargo para este projeto específico
   localPath     String   @unique
   description   String?
   role          String? // Detects if Dev, Tech Lead or Architect based on git
@@ -33,6 +37,7 @@ model Project {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
 
 model Platform {
   id           String   @id @default(uuid())
@@ -53,4 +58,11 @@ model PlatformData {
   updatedAt  DateTime @updatedAt
 
   platform Platform @relation(fields: [platformId], references: [id])
+}
+model ResumeVersion {
+  id        String   @id @default(uuid())
+  name      String   // Ex: "Snapshot - 10/04/2026"
+  profile   Json     // Snapshot do UserProfile
+  projects  Json     // Snapshot da lista de Projetos
+  createdAt DateTime @default(now())
 }

@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "Plataforma inteligente para gerenciar currículo, portfólio e plataformas de recrutamento.",
 };
 
+import Navbar from "@/app/components/Navbar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,9 +27,12 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${inter.variable} ${firaCode.variable} h-full antialiased dark`}
+      className={`${inter.variable} ${firaCode.variable} h-full antialiased dark scroll-smooth`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col bg-neutral-950">
+        <Navbar />
+        <main className="flex-1">{children}</main>
+      </body>
     </html>
   );
 }

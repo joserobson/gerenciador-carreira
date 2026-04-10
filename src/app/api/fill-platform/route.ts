@@ -33,8 +33,10 @@ export async function POST(req: Request) {
     `;
 
     const projectsText = projects.map(p => `
+      Empresa: ${p.company || "N/A"}
+      Cargo: ${p.jobTitle || p.role || "N/A"}
+      Período: ${p.startDate || "N/A"} - ${p.endDate || "N/A"}
       Projeto: ${p.name}
-      Atuação: ${(p as any).role}
       Tecnologias: ${p.technologies.join(", ")}
       Desafios que enfrentei: ${p.challenges || "N/A"}
       Soluções que criei: ${p.solutions || "N/A"}
@@ -78,7 +80,8 @@ Retorne APENAS UM JSON VÁLIDO contendo o formulário completamente respondido. 
 
     return NextResponse.json({
       message: "Formulários preenchidos milimetricamente com sucesso!",
-      data: JSON.parse(cleanJsonStr)
+      data: JSON.parse(cleanJsonStr),
+      platformDataId: platformData.id
     });
 
   } catch (error: any) {

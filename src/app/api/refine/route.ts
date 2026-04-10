@@ -5,8 +5,9 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req: Request) {
   try {
     const { 
-      type, // 'about' | 'project'
-      id, // undefined se for 'about', uuid se for 'project'
+      type, // 'about' | 'project' | 'platform'
+      id, // uuid do registro correspondente
+      fieldPath, // opcional: caminho do campo no JSON (ex: 'apresentacao.resumo')
       originalText,
       userPrompt,
       provider = "gemini",
@@ -31,7 +32,7 @@ ${originalText}
 
     const refinedText = await askLocalAI(prompt, provider as Provider);
 
-    // Opção A: Salvar de volta ao Banco de Dados para que as impressões futuras consumam o texto revisado.
+    // Persistência
     if (type === 'about') {
       const user = await prisma.userProfile.findFirst();
       if (user) {
@@ -41,13 +42,38 @@ ${originalText}
         });
       }
     } else if (type === 'project' && id) {
-      // Vamos salvar essa redação refinada em 'description' ou sobrescrever o 'solutions' 
-      // para carregar no gerador de CV futuramente, ou podemos dedicar um campo `summary` futuramente.
-      // Como o DB possui a description que consolidamos, atualizaremos lá.
       await prisma.project.update({
         where: { id: id },
         data: { description: refinedText }
       });
+    } else if (type === 'platform' && id && fieldPath) {
+      // Localizar o registro de dados da plataforma
+      const platformData = await prisma.platformData.findUnique({
+        where: { id: id }
+      });
+
+      if (platformData) {
+        const dataObj = JSON.parse(platformData.data);
+        
+        // Helper para atualizar objeto aninhado por string path (ex: "apresentacao.resumo")
+        const setNestedValue = (obj: any, path: string, val: any) => {
+          const keys = path.split('.');
+          let current = obj;
+          for (let i = 0; i < keys.length - 1; i++) {
+            const key = keys[i];
+            if (!(key in current)) current[key] = {};
+            current = current[key];
+          }
+          current[keys[keys.length - 1]] = val;
+        };
+
+        setNestedValue(dataObj, fieldPath, refinedText);
+
+        await prisma.platformData.update({
+          where: { id: id },
+          data: { data: JSON.stringify(dataObj) }
+        });
+      }
     }
 
     return NextResponse.json({

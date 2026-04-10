@@ -1,0 +1,85 @@
+{
+  "perfil_visivel": {
+    "status_do_perfil": "Visível / Invisível"
+  },
+  "apresentacao": {
+    "titulo_profissional": "Engenheiro de Software Sênior, Technical Lead, Arquiteto de Software",
+    "resumo_da_experiencia": "Mais de 15 anos de experiência em desenvolvimento Fullstack com .NET, C# e Angular, liderança técnica e arquitetura de microsserviços."
+  },
+  "informacoes_adicionais": {
+    "telefone": "+55 (11) 99999-9999",
+    "genero": "Masculino / Feminino / Outro / Prefiro não informar",
+    "necessidade_especial": "Nenhuma / Deficiência auditiva / Deficiência visual / Mobilidade reduzida / Outra",
+    "linkedin": "https://www.linkedin.com/in/seu-perfil"
+  },
+  "preferencia_de_vagas": {
+    "vagas_no_brasil": {
+      "regime_de_trabalho": "CLT / PJ / Cooperativa / Freelancer",
+      "remuneracao_mensal_pretendida_clt": "R$ 12.000,00",
+      "remuneracao_mensal_pretendida_pj_ou_cooperativa": "R$ 15.000,00"
+    },
+    "vagas_no_exterior": {
+      "remuneracao_anual_pretendida_usd": "USD 84.000,00",
+      "trabalho_exclusivamente_utilizando_ingles": "Sim / Não"
+    }
+  },
+  "modelo_de_trabalho": {
+    "disponibilidade_para_vagas": "Remoto / Híbrido / Presencial",
+    "onde_mora_atualmente": "São Paulo - SP"
+  },
+  "area_de_atuacao": {
+    "tempo_de_experiencia_0_1": "Front-end / Back-end / Mobile / Dados / DevOps",
+    "tempo_de_experiencia_1_3": "Front-end / Back-end / Mobile / Dados / DevOps",
+    "tempo_de_experiencia_4_6": "Front-end / Back-end / Mobile / Dados / DevOps",
+    "tempo_de_experiencia_7_mais": "Fullstack / Arquitetura / Tech Lead"
+  },
+  "habilidades": {
+    "tempo_de_experiencia_0_1": "Python / Docker / MongoDB",
+    "tempo_de_experiencia_1_3": "Angular / Node.js / SQL",
+    "tempo_de_experiencia_4_6": ".NET Core / C# / API REST",
+    "tempo_de_experiencia_7_mais": "Arquitetura de Software / Microsserviços / Liderança Técnica"
+  },
+  "experiencia_de_trabalho": [
+    {
+      "cargo": "Senior Full Stack Software Engineer",
+      "tecnologias": "C# / .NET / Angular / SQL Server",
+      "nome_da_empresa": "Nome da Empresa Exemplo",
+      "periodo_inicio": "jan/2020",
+      "periodo_fim": "dez/2024",
+      "descricao_atividades": "Desenvolvimento de APIs REST com .NET Core, criação de interfaces com Angular, arquitetura de microsserviços, liderança técnica de equipe de 5 desenvolvedores."
+    },
+    {
+      "cargo": "Full Stack Developer",
+      "tecnologias": "Java / C# / JavaScript / SQL Server",
+      "nome_da_empresa": "Outra Empresa Exemplo",
+      "periodo_inicio": "mar/2015",
+      "periodo_fim": "jun/2019",
+      "descricao_atividades": "Manutenção de sistemas legados, desenvolvimento de novos módulos, integração com APIs de terceiros e otimização de consultas SQL."
+    }
+  ],
+  "formacao_academica": [
+    {
+      "instituicao": "Universidade Federal de Juiz de Fora",
+      "curso": "Gestão de Projetos de TI",
+      "periodo_inicio": "2013",
+      "periodo_fim": "2014",
+      "nivel": "Pós-graduação / Mestrado / Doutorado / Graduação / Técnico",
+      "status": "Concluído / Cursando / Trancado"
+    },
+    {
+      "instituicao": "Centro Universitário Presidente Antônio Carlos - UNIPAC",
+      "curso": "Ciência da Computação",
+      "periodo_inicio": "2004",
+      "periodo_fim": "2007",
+      "nivel": "Graduação",
+      "status": "Concluído"
+    }
+  ],
+  "rodape": {
+    "satisfacao_com_o_perfil": "Sim / Não",
+    "politica_de_privacidade": "https://site.com/politica-de-privacidade",
+    "termos_de_uso": "https://site.com/termos-de-uso",
+    "portal_lgpd": "https://site.com/lgpd",
+    "direitos_autorais": "© 2015 - 2026 GeekHunter. Todos os direitos reservados."
+  }
+}
