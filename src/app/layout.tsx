@@ -29,9 +29,9 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${inter.variable} ${firaCode.variable} h-full antialiased dark scroll-smooth`}
     >
-      <body className="min-h-full flex flex-col bg-neutral-950">
+      <body className="min-h-full flex bg-neutral-950">
         <Navbar />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 ml-52">{children}</main>
       </body>
     </html>
   );

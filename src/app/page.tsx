@@ -429,11 +429,6 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100 p-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-12">
-        <header className="space-y-2 border-b border-neutral-800 pb-6">
-          <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-orange-400 to-rose-500 bg-clip-text text-transparent">Antigravity Career Manager 🚀</h1>
-          <p className="text-neutral-400">Automatize seu currículo, portfólio e formulários (Map-Reduce Cloud Híbrido).</p>
-        </header>
-
         {/* Global Settings */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-neutral-900 border border-neutral-800 p-4 rounded-xl shadow-inner gap-4">
           <div className="flex items-center gap-4">
@@ -705,7 +700,7 @@ export default function Home() {
         </section>
 
         {/* PDF / CV A4 Export */}
-        <section className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl">
+        <section id="cv-export" className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl">
            <div className="flex flex-col gap-4">
              <div>
                <h2 className="text-2xl font-bold text-white">📄 Exportar Currículo (A4)</h2>
