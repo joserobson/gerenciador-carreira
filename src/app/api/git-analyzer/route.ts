@@ -8,7 +8,7 @@ import path from 'path';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { repoPath, author, provider = 'gemini', months = 6, forceSync = false } = body;
+    const { repoPath, author, provider = 'gemini', forceSync = false } = body;
 
     if (!repoPath || !author) {
       return NextResponse.json({ error: "Missing repoPath or author" }, { status: 400 });
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     console.log(`Starting git log extraction for ${repoPath} (author: ${author}, forceSync: ${forceSync})`);
     
     const applyDeltaSync = !forceSync && existingProject?.lastAnalysedAt;
-    const logs = await extractGitLogs(repoPath, author, months, applyDeltaSync ? existingProject.lastAnalysedAt : null);
+    const logs = await extractGitLogs(repoPath, author, 6, applyDeltaSync ? existingProject.lastAnalysedAt : null);
     
     if (!logs || logs.trim().length === 0) {
       return NextResponse.json({ message: "Repositório 100% Atualizado! Nenhum commit novo desde a última verificação.", data: null });
