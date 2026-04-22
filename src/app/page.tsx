@@ -2,6 +2,79 @@
 
 import { useState, useEffect } from "react";
 
+function ProjectAccordion({ p, provider, language, handleUpdateProject }: any) {
+  const [open, setOpen] = useState(false);
+
+  const techCount = p.technologies?.length || 0;
+  const label = [p.role, p.company].filter(Boolean).join(" @ ") || "Sem dados";
+
+  return (
+    <div className="bg-neutral-900/30 border border-neutral-800/50 rounded-2xl overflow-hidden transition-all">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center gap-4 px-6 py-4 text-left hover:bg-neutral-900/60 transition-colors group"
+      >
+        <span className={`text-neutral-500 transition-transform duration-200 ${open ? "rotate-90" : ""}`}>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-neutral-100 truncate">{p.name}</p>
+          <p className="text-xs text-neutral-500 truncate">{label}</p>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          {p.startDate && (
+            <span className="text-[10px] text-neutral-600 font-mono">
+              {p.startDate}{p.endDate ? ` → ${p.endDate}` : " → Atual"}
+            </span>
+          )}
+          {techCount > 0 && (
+            <span className="text-[10px] bg-sky-500/10 text-sky-400 px-2 py-0.5 rounded border border-sky-500/20">
+              {techCount} techs
+            </span>
+          )}
+        </div>
+      </button>
+
+      {open && (
+        <div className="px-6 pb-6 space-y-6 border-t border-neutral-800/50 pt-5 animate-in fade-in slide-in-from-top-1 duration-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <EditableInput label="Nome do Projeto" value={p.name} onBlur={(v: string) => handleUpdateProject(p.id, 'name', v)} />
+            <EditableInput label="Empresa" value={p.company} onBlur={(v: string) => handleUpdateProject(p.id, 'company', v)} placeholder="Ex: Google" />
+            <EditableInput label="Cargo/Papel" value={p.role} onBlur={(v: string) => handleUpdateProject(p.id, 'role', v)} />
+            <div className="grid grid-cols-2 gap-4">
+              <EditableInput label="Início" value={p.startDate} onBlur={(v: string) => handleUpdateProject(p.id, 'startDate', v)} placeholder="Jan/2020" />
+              <EditableInput label="Fim" value={p.endDate} onBlur={(v: string) => handleUpdateProject(p.id, 'endDate', v)} placeholder="Dez/2024 ou Atual" />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <RefinableBlock
+              title="Contexto e Desafios"
+              type="project" id={p.id} fieldPath="challenges"
+              initialText={p.challenges} provider={provider} language={language}
+              onSave={(v: string) => handleUpdateProject(p.id, 'challenges', v)}
+            />
+            <RefinableBlock
+              title="Ações e Resultados (STAR)"
+              type="project" id={p.id} fieldPath="solutions"
+              initialText={p.solutions} provider={provider} language={language}
+              onSave={(v: string) => handleUpdateProject(p.id, 'solutions', v)}
+            />
+          </div>
+
+          <EditableInput
+            label="Tecnologias (Vírgula)"
+            value={p.technologies?.join(", ")}
+            onBlur={(v: string) => handleUpdateProject(p.id, 'technologies', v.split(",").map((t: string) => t.trim()))}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RefinableBlock({ title, type, id, fieldPath, initialText, provider, language, onSave }: any) {
   const [text, setText] = useState(initialText);
   const [prompt, setPrompt] = useState("");
@@ -154,8 +227,24 @@ export default function Home() {
   const [loadingGit, setLoadingGit] = useState(false);
   const [resultGit, setResultGit] = useState<any>(null);
   const [repoPath, setRepoPath] = useState("d:/ia-workspace/sob-controle");
-  const [author, setAuthor] = useState("joserobson");
+  const [author, setAuthor] = useState("");
+  const [detectingAuthor, setDetectingAuthor] = useState(false);
   const [forceSync, setForceSync] = useState(false);
+
+  const handleDetectAuthor = async (path: string) => {
+    if (!path.trim()) return;
+    setDetectingAuthor(true);
+    try {
+      const res = await fetch("/api/git-analyzer/detect-author", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ repoPath: path }),
+      });
+      const data = await res.json();
+      if (!data.error) setAuthor(data.name || data.email || "");
+    } catch {}
+    finally { setDetectingAuthor(false); }
+  };
 
   // States - CV Upload
   const [cvFile, setCvFile] = useState<File | null>(null);
@@ -269,6 +358,13 @@ export default function Home() {
   };
 
   const handleUpdateProject = async (projectId: string, field: string, value: any) => {
+    // Update local state immediately so accordion header and fields reflect the change
+    setResultGit((prev: any) => ({
+      ...prev,
+      data: prev?.data?.map((p: any) =>
+        p.id === projectId ? { ...p, [field]: value } : p
+      ),
+    }));
     try {
       await fetch("/api/projects/update", {
         method: "POST",
@@ -315,7 +411,13 @@ export default function Home() {
         body: JSON.stringify({ repoPath, author, provider, forceSync }),
       });
       const data = await res.json();
-      setResultGit(data);
+      if (data.error) {
+        setResultGit({ error: data.error });
+      } else if (data.upToDate) {
+        setResultGit({ message: data.message });
+      } else {
+        await fetchInitialData();
+      }
     } catch (e: any) {
       setResultGit({ error: e.message });
     } finally {
@@ -523,8 +625,26 @@ export default function Home() {
            <h2 className="text-2xl font-bold mb-4">1. Extração do Git (Delta Sync)</h2>
            <div className="space-y-4">
               <div className="flex flex-col md:flex-row gap-4">
-                <input type="text" placeholder="D:/caminho/repo" value={repoPath} onChange={e => setRepoPath(e.target.value)} className="flex-1 bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2 placeholder-neutral-700" />
-                <input type="text" placeholder="Git Author (ex: joserobson)" value={author} onChange={e => setAuthor(e.target.value)} className="w-full md:w-64 bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2 placeholder-neutral-700" />
+                <input
+                  type="text"
+                  placeholder="D:/caminho/repo"
+                  value={repoPath}
+                  onChange={e => setRepoPath(e.target.value)}
+                  onBlur={e => handleDetectAuthor(e.target.value)}
+                  className="flex-1 bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2 placeholder-neutral-700"
+                />
+                <div className="relative w-full md:w-64">
+                  <input
+                    type="text"
+                    placeholder={detectingAuthor ? "Detectando..." : "Autor (auto-detectado)"}
+                    value={author}
+                    onChange={e => setAuthor(e.target.value)}
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2 placeholder-neutral-600"
+                  />
+                  {detectingAuthor && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-orange-400 animate-pulse">⚡</span>
+                  )}
+                </div>
               </div>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-neutral-950 p-3 rounded-lg border border-neutral-800 gap-4">
                  <label className="flex items-center gap-3 cursor-pointer select-none">
@@ -550,7 +670,7 @@ export default function Home() {
                           <div>
                              <h3 className="font-bold text-neutral-200">{resultGit.message || "Análise Concluída"}</h3>
                              <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-widest">
-                                {resultGit.data?.name || repoPath.split(/[\/\\]/).pop()} • {resultGit.data?.technologies?.length || 0} Techs Encontradas
+                                {repoPath.split(/[\/\\]/).pop()}
                              </p>
                           </div>
                        </div>
@@ -641,36 +761,15 @@ export default function Home() {
                     </h3>
                     
                     {resultGit?.data?.length > 0 ? (
-                      <div className="space-y-10">
+                      <div className="space-y-2">
                         {resultGit.data.map((p: any) => (
-                          <div key={p.id} className="bg-neutral-900/30 border border-neutral-800/50 rounded-2xl p-6 space-y-6 hover:bg-neutral-900/50 transition-all">
-                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <EditableInput label="Nome do Projeto" value={p.name} onBlur={(v: string) => handleUpdateProject(p.id, 'name', v)} />
-                                <EditableInput label="Empresa" value={p.company} onBlur={(v: string) => handleUpdateProject(p.id, 'company', v)} placeholder="Ex: Google" />
-                                <EditableInput label="Cargo/Papel" value={p.role} onBlur={(v: string) => handleUpdateProject(p.id, 'role', v)} />
-                                <div className="grid grid-cols-2 gap-2">
-                                  <EditableInput label="Início" value={p.startDate} onBlur={(v: string) => handleUpdateProject(p.id, 'startDate', v)} placeholder="Jan/20" />
-                                  <EditableInput label="Fim" value={p.endDate} onBlur={(v: string) => handleUpdateProject(p.id, 'endDate', v)} placeholder="Atual" />
-                                </div>
-                             </div>
-
-                             <div className="space-y-4">
-                               <RefinableBlock 
-                                 title="Contexto e Desafios" 
-                                 type="project" id={p.id} fieldPath="challenges" 
-                                 initialText={p.challenges} provider={provider} language={language} 
-                                 onSave={(v: string) => handleUpdateProject(p.id, 'challenges', v)}
-                               />
-                               <RefinableBlock 
-                                 title="Ações e Resultados (STAR)" 
-                                 type="project" id={p.id} fieldPath="solutions" 
-                                 initialText={p.solutions} provider={provider} language={language} 
-                                 onSave={(v: string) => handleUpdateProject(p.id, 'solutions', v)}
-                               />
-                             </div>
-
-                             <EditableInput label="Tecnologias (Vírgula)" value={p.technologies?.join(", ")} onBlur={(v: string) => handleUpdateProject(p.id, 'technologies', v.split(",").map(t => t.trim()))} />
-                          </div>
+                          <ProjectAccordion
+                            key={p.id}
+                            p={p}
+                            provider={provider}
+                            language={language}
+                            handleUpdateProject={handleUpdateProject}
+                          />
                         ))}
                       </div>
                     ) : (

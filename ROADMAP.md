@@ -19,10 +19,18 @@
 
 - [x] Upload de PDF de currículo → extração estruturada via IA → salva em `UserProfile`
 - [x] Git Analyzer: extração inteligente com probe automático de range (oldest→newest commit)
-  - `full` (≤6 meses ou ≤60 commits): diffs completos
-  - `stat-only` (≤24 meses ou ≤300 commits): arquivos alterados sem diff
-  - `sampled` (projetos antigos/grandes): últimos 80 + primeiros 20 commits
+  - `full` (≤6 meses ou ≤60 commits): diffs completos, cap 50 commits
+  - `stat-only` (≤24 meses ou ≤300 commits): arquivos alterados sem diff, cap 150 commits
+  - `sampled` (projetos antigos/grandes): últimos 60 + primeiros 15 commits
+- [x] Auto-detecção de autor via `git config user.name` / `user.email` ao informar o caminho do repo
+  - Campo autor preenchido automaticamente no blur do campo de caminho
+  - Rota detecta automaticamente se o campo vier vazio
+  - Erro explicativo quando autor não é encontrado (em vez de falha silenciosa)
 - [x] Delta Sync: re-análise forçada só sobrescreve se o usuário confirmar
+- [x] Projetos analisados recarregados corretamente na seção Currículo Mestre após análise
+- [x] Projetos e Experiência em acordeão retraído (expande ao clicar)
+- [x] Edição de campos do projeto persiste no estado React e salva no banco (estado local atualizado imediatamente)
+- [x] Campos de data (Início/Fim) com largura correta para digitar o ano completo
 - [ ] Análise de URL de portfólio (campo existe no form, mas não há análise automatizada do conteúdo)
 - [ ] Importação em lote de múltiplos repositórios git de uma vez
 

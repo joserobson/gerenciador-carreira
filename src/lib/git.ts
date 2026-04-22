@@ -3,6 +3,22 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
+export async function detectAuthor(repoPath: string): Promise<{ name: string; email: string } | null> {
+  try {
+    const [nameResult, emailResult] = await Promise.all([
+      execAsync('git config user.name', { cwd: repoPath, maxBuffer: 1024 * 512 }),
+      execAsync('git config user.email', { cwd: repoPath, maxBuffer: 1024 * 512 }),
+    ]);
+    const name = nameResult.stdout.trim();
+    const email = emailResult.stdout.trim();
+    if (!name && !email) return null;
+    console.log(`[Git] Author detected: ${name} <${email}>`);
+    return { name, email };
+  } catch {
+    return null;
+  }
+}
+
 type SamplingStrategy = 'full' | 'stat-only' | 'sampled';
 
 interface RepoProbe {
@@ -15,34 +31,34 @@ interface RepoProbe {
 
 async function probeRepo(repoPath: string, author: string): Promise<RepoProbe | null> {
   try {
-    const { stdout } = await execAsync(
-      `git log --author="${author}" --no-merges --format="%ai"`,
-      { cwd: repoPath, maxBuffer: 1024 * 1024 * 2 }
-    );
+    // git --author accepts partial match against "Name <email>", so passing name OR email works
+    const [countResult, newestResult, oldestResult] = await Promise.all([
+      execAsync(`git rev-list --author="${author}" --no-merges --count HEAD`, { cwd: repoPath, maxBuffer: 1024 * 512 }),
+      execAsync(`git log --author="${author}" --no-merges --format="%ai" -1`, { cwd: repoPath, maxBuffer: 1024 * 512 }),
+      execAsync(`git log --author="${author}" --no-merges --format="%ai" --reverse -1`, { cwd: repoPath, maxBuffer: 1024 * 512 }),
+    ]);
 
-    const dates = stdout.trim().split('\n').filter(Boolean);
-    if (dates.length === 0) return null;
+    const totalCommits = parseInt(countResult.stdout.trim(), 10);
+    if (!totalCommits) return null;
 
-    const newestDate = new Date(dates[0]);
-    const oldestDate = new Date(dates[dates.length - 1]);
-    const totalCommits = dates.length;
+    const newestDate = new Date(newestResult.stdout.trim());
+    const oldestDate = new Date(oldestResult.stdout.trim());
     const spanMonths = (newestDate.getTime() - oldestDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44);
 
     let strategy: SamplingStrategy;
     if (spanMonths <= 6 || totalCommits <= 60) {
-      strategy = 'full';       // diffs completos
+      strategy = 'full';
     } else if (spanMonths <= 24 || totalCommits <= 300) {
-      strategy = 'stat-only';  // sem diffs, preserva mensagens e arquivos alterados
+      strategy = 'stat-only';
     } else {
-      strategy = 'sampled';    // amostragem: primeiros + últimos commits
+      strategy = 'sampled';
     }
 
-    console.log(
-      `[Git Probe] ${totalCommits} commits | ${spanMonths.toFixed(1)} months span | strategy: ${strategy}`
-    );
+    console.log(`[Git Probe] ${totalCommits} commits | ${spanMonths.toFixed(1)} months | strategy: ${strategy}`);
 
     return { totalCommits, spanMonths, oldestDate, newestDate, strategy };
-  } catch {
+  } catch (e) {
+    console.warn('[Git Probe] failed:', e);
     return null;
   }
 }
@@ -69,8 +85,8 @@ export async function extractGitLogs(
     console.log(`[Git] Delta Sync — commits desde ${isoDate}`);
     try {
       const { stdout } = await execAsync(
-        `git log --author="${author}" --since="${isoDate}" --no-merges --stat -p`,
-        { cwd: repoPath, maxBuffer: 1024 * 1024 * 20 }
+        `git log --author="${author}" --since="${isoDate}" --no-merges --stat -p -n 60`,
+        { cwd: repoPath, maxBuffer: 1024 * 1024 * 15 }
       );
       return stdout;
     } catch {
@@ -78,51 +94,50 @@ export async function extractGitLogs(
     }
   }
 
-  // Probe: descobre o tamanho real do projeto antes de ler tudo
   const probe = await probeRepo(repoPath, author);
 
   if (!probe) {
-    console.warn('[Git] Probe falhou — nenhum commit encontrado para esse autor');
-    return '';
+    throw new Error(
+      `Nenhum commit encontrado para o autor "${author}" em "${repoPath}". ` +
+      `Verifique se o caminho está correto e se o nome do autor bate com o git log do repositório.`
+    );
   }
 
   const header = buildHeader(probe);
-  const maxBuffer = 1024 * 1024 * 20;
 
   if (probe.strategy === 'full') {
-    // Projeto pequeno ou recente: diffs completos
+    // Projeto pequeno/recente: diffs completos, cap 50 commits
     const { stdout } = await execAsync(
-      `git log --author="${author}" --no-merges --stat -p`,
-      { cwd: repoPath, maxBuffer }
+      `git log --author="${author}" --no-merges --stat -p -n 50`,
+      { cwd: repoPath, maxBuffer: 1024 * 1024 * 20 }
     );
     return header + stdout;
   }
 
   if (probe.strategy === 'stat-only') {
-    // Projeto médio: stat sem diff, todos os commits
+    // Projeto médio: sem diffs, cap 150 commits
     const { stdout } = await execAsync(
-      `git log --author="${author}" --no-merges --stat`,
-      { cwd: repoPath, maxBuffer }
+      `git log --author="${author}" --no-merges --stat -n 150`,
+      { cwd: repoPath, maxBuffer: 1024 * 1024 * 10 }
     );
     return header + stdout;
   }
 
-  // Projeto grande/antigo: amostragem — últimos 80 + primeiros 20 commits
-  // Os primeiros revelam o stack inicial; os últimos revelam o trabalho recente
+  // Projeto grande/antigo: últimos 60 + primeiros 15 commits
   const [recentResult, oldestResult] = await Promise.all([
     execAsync(
-      `git log --author="${author}" --no-merges --stat -n 80`,
-      { cwd: repoPath, maxBuffer }
+      `git log --author="${author}" --no-merges --stat -n 60`,
+      { cwd: repoPath, maxBuffer: 1024 * 1024 * 8 }
     ),
     execAsync(
-      `git log --author="${author}" --no-merges --stat --reverse -n 20`,
-      { cwd: repoPath, maxBuffer }
+      `git log --author="${author}" --no-merges --stat --reverse -n 15`,
+      { cwd: repoPath, maxBuffer: 1024 * 1024 * 4 }
     ),
   ]);
 
   const combined =
-    `=== COMMITS RECENTES (últimos 80) ===\n${recentResult.stdout}\n\n` +
-    `=== COMMITS INICIAIS DO PROJETO (primeiros 20) ===\n${oldestResult.stdout}`;
+    `=== COMMITS RECENTES (últimos 60) ===\n${recentResult.stdout}\n\n` +
+    `=== COMMITS INICIAIS DO PROJETO (primeiros 15) ===\n${oldestResult.stdout}`;
 
   return header + combined;
 }

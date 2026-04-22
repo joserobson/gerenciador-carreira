@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { extractGitLogs } from "@/lib/git";
+import { extractGitLogs, detectAuthor } from "@/lib/git";
 import { analyzeProjectCommits, Provider } from "@/lib/ai";
 import { prisma } from "@/lib/prisma";
 import fs from 'fs';
@@ -8,10 +8,20 @@ import path from 'path';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { repoPath, author, provider = 'gemini', forceSync = false } = body;
+    const { repoPath, provider = 'gemini', forceSync = false } = body;
+    let { author } = body;
 
-    if (!repoPath || !author) {
-      return NextResponse.json({ error: "Missing repoPath or author" }, { status: 400 });
+    if (!repoPath) {
+      return NextResponse.json({ error: "Caminho do repositório não informado." }, { status: 400 });
+    }
+
+    if (!author) {
+      const detected = await detectAuthor(repoPath);
+      if (!detected) {
+        return NextResponse.json({ error: "Não foi possível detectar o autor do repositório. Informe o nome manualmente." }, { status: 400 });
+      }
+      author = detected.name || detected.email;
+      console.log(`[Git Analyzer] Author auto-detected: ${author}`);
     }
 
     // Check if project exists to get lastAnalysedAt for Delta Sync
@@ -25,7 +35,7 @@ export async function POST(req: Request) {
     const logs = await extractGitLogs(repoPath, author, 6, applyDeltaSync ? existingProject.lastAnalysedAt : null);
     
     if (!logs || logs.trim().length === 0) {
-      return NextResponse.json({ message: "Repositório 100% Atualizado! Nenhum commit novo desde a última verificação.", data: null });
+      return NextResponse.json({ upToDate: true, message: "Repositório atualizado — nenhum commit novo desde a última análise." });
     }
 
     console.log(`Extracted ${logs.length} bytes of log. Sending to AI (${provider})...`);
