@@ -28,6 +28,7 @@ export async function POST(req: Request) {
           summary: profileData.summary,
           skills: profileData.skills,
           portfolio: profileData.portfolio,
+          professionalSite: profileData.professionalSite,
           cvPath: profileData.cvPath
         }
       });
@@ -40,6 +41,7 @@ export async function POST(req: Request) {
           summary: profileData.summary,
           skills: profileData.skills,
           portfolio: profileData.portfolio,
+          professionalSite: profileData.professionalSite,
           cvPath: profileData.cvPath
         }
       });
@@ -60,6 +62,9 @@ export async function POST(req: Request) {
           technologies: p.technologies,
           challenges: p.challenges,
           solutions: p.solutions,
+          includeInResume: p.includeInResume ?? true,
+          includeResultsInResume: p.includeResultsInResume ?? true,
+          resumeOrder: p.resumeOrder ?? null,
           lastAnalysedAt: p.lastAnalysedAt ? new Date(p.lastAnalysedAt) : null
         }
       });

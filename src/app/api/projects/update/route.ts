@@ -21,7 +21,10 @@ export async function POST(req: Request) {
         role: data.role ?? undefined,
         technologies: data.technologies ?? undefined,
         challenges: data.challenges ?? undefined,
-        solutions: data.solutions ?? undefined
+        solutions: data.solutions ?? undefined,
+        includeInResume: data.includeInResume ?? undefined,
+        includeResultsInResume: data.includeResultsInResume ?? undefined,
+        resumeOrder: "resumeOrder" in data ? data.resumeOrder : undefined
       }
     });
 

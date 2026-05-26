@@ -15,6 +15,7 @@ model UserProfile {
   summary   String?
   skills    String[]
   portfolio String?
+  professionalSite String?
   cvPath    String?  // temp path to uploaded CV
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -33,6 +34,9 @@ model Project {
   technologies  String[]
   challenges    String?
   solutions     String?
+  includeInResume Boolean @default(true)
+  includeResultsInResume Boolean @default(true)
+  resumeOrder   Int?
   lastAnalysedAt DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

@@ -15,7 +15,8 @@ export async function POST(req: Request) {
           title: data.title ?? undefined,
           summary: data.summary ?? undefined,
           skills: data.skills ?? undefined,
-          portfolio: data.portfolio ?? undefined
+          portfolio: data.portfolio ?? undefined,
+          professionalSite: data.professionalSite ?? undefined
         }
       });
     } else {
@@ -26,7 +27,8 @@ export async function POST(req: Request) {
           title: data.title,
           summary: data.summary,
           skills: data.skills || [],
-          portfolio: data.portfolio
+          portfolio: data.portfolio,
+          professionalSite: data.professionalSite
         }
       });
     }

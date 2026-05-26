@@ -1,0 +1,1 @@
+ALTER TABLE "Project" ADD COLUMN "includeInResume" BOOLEAN NOT NULL DEFAULT true;

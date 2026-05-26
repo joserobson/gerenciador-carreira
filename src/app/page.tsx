@@ -34,11 +34,50 @@ function ProjectAccordion({ p, provider, language, handleUpdateProject }: any) {
               {techCount} techs
             </span>
           )}
+          <span className={`text-[10px] px-2 py-0.5 rounded border ${
+            p.includeInResume === false
+              ? "bg-neutral-800 text-neutral-500 border-neutral-700"
+              : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+          }`}>
+            {p.includeInResume === false ? "fora do CV" : "no CV"}
+          </span>
+          {p.includeInResume !== false && (
+            <span className={`text-[10px] px-2 py-0.5 rounded border ${
+              p.includeResultsInResume === false
+                ? "bg-neutral-800 text-neutral-500 border-neutral-700"
+                : "bg-amber-500/10 text-amber-300 border-amber-500/20"
+            }`}>
+              {p.includeResultsInResume === false ? "sem resultados" : "com resultados"}
+            </span>
+          )}
         </div>
       </button>
 
       {open && (
         <div className="px-6 pb-6 space-y-6 border-t border-neutral-800/50 pt-5 animate-in fade-in slide-in-from-top-1 duration-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <label className="flex items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-950/60 px-4 py-3 text-sm text-neutral-300">
+              <input
+                type="checkbox"
+                checked={p.includeInResume !== false}
+                onChange={(e) => handleUpdateProject(p.id, "includeInResume", e.target.checked)}
+                className="h-4 w-4 rounded border-neutral-700 bg-neutral-900 text-orange-500 focus:ring-orange-500/40"
+              />
+              <span className="font-medium">Incluir este projeto no currículo</span>
+            </label>
+
+            <label className={`flex items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-950/60 px-4 py-3 text-sm text-neutral-300 ${p.includeInResume === false ? "opacity-50" : ""}`}>
+              <input
+                type="checkbox"
+                checked={p.includeResultsInResume !== false}
+                disabled={p.includeInResume === false}
+                onChange={(e) => handleUpdateProject(p.id, "includeResultsInResume", e.target.checked)}
+                className="h-4 w-4 rounded border-neutral-700 bg-neutral-900 text-orange-500 focus:ring-orange-500/40 disabled:opacity-50"
+              />
+              <span className="font-medium">Incluir ações e resultados no currículo</span>
+            </label>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <EditableInput label="Nome do Projeto" value={p.name} onBlur={(v: string) => handleUpdateProject(p.id, 'name', v)} />
             <EditableInput label="Empresa" value={p.company} onBlur={(v: string) => handleUpdateProject(p.id, 'company', v)} placeholder="Ex: Google" />
@@ -47,6 +86,12 @@ function ProjectAccordion({ p, provider, language, handleUpdateProject }: any) {
               <EditableInput label="Início" value={p.startDate} onBlur={(v: string) => handleUpdateProject(p.id, 'startDate', v)} placeholder="Jan/2020" />
               <EditableInput label="Fim" value={p.endDate} onBlur={(v: string) => handleUpdateProject(p.id, 'endDate', v)} placeholder="Dez/2024 ou Atual" />
             </div>
+            <EditableInput
+              label="Ordem no currículo"
+              value={p.resumeOrder ?? ""}
+              onBlur={(v: string) => handleUpdateProject(p.id, 'resumeOrder', v.trim() ? Number(v) : null)}
+              placeholder="Ex: 1"
+            />
           </div>
 
           <div className="space-y-4">
@@ -256,6 +301,7 @@ export default function Home() {
   const [resultLi, setResultLi] = useState<any>(null);
   const [githubUrl, setGithubUrl] = useState("https://github.com/joserobson");
   const [linkedinUrl, setLinkedinUrl] = useState("https://linkedin.com/in/joserobson");
+  const [professionalSite, setProfessionalSite] = useState("");
 
   // States - PDF
   const [loadingPdf, setLoadingPdf] = useState(false);
@@ -279,6 +325,7 @@ export default function Home() {
         setResultCv({ message: "Dados carregados do banco", data: data.profile });
         // Set URLs if found
         if (data.profile.portfolio) setGithubUrl(data.profile.portfolio);
+        if (data.profile.professionalSite) setProfessionalSite(data.profile.professionalSite);
       }
       if (data.projects && data.projects.length > 0) {
         setResultGit({ message: "Projetos carregados do banco", data: data.projects });
@@ -353,7 +400,12 @@ export default function Home() {
         body: JSON.stringify({ [field]: value })
       });
       // Refresh local state if it's a critical field
-      if (field === 'summary') setResultCv(prev => ({ ...prev, data: { ...prev.data, summary: value } }));
+      if (field === 'summary') {
+        setResultCv((prev: any) => ({
+          ...prev,
+          data: { ...prev?.data, summary: value },
+        }));
+      }
     } catch (e) { console.error("Update error:", e); }
   };
 
@@ -372,6 +424,27 @@ export default function Home() {
         body: JSON.stringify({ id: projectId, [field]: value })
       });
     } catch (e) { console.error("Update Project error:", e); }
+  };
+
+  const handleToggleAllProjectResultsInResume = async (checked: boolean) => {
+    const projects = resultGit?.data || [];
+
+    setResultGit((prev: any) => ({
+      ...prev,
+      data: prev?.data?.map((p: any) => ({ ...p, includeResultsInResume: checked })),
+    }));
+
+    try {
+      await Promise.all(
+        projects.map((p: any) =>
+          fetch("/api/projects/update", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: p.id, includeResultsInResume: checked })
+          })
+        )
+      );
+    } catch (e) { console.error("Bulk project update error:", e); }
   };
 
   useEffect(() => {
@@ -476,13 +549,23 @@ export default function Home() {
       const res = await fetch("/api/generate-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language }),
+        body: JSON.stringify({ language, provider, githubUrl, linkedinUrl, professionalSite }),
       });
-      const data = await res.json();
-      if (data.error) { alert(data.error); return; }
-      // Open HTML in a new tab — user can Ctrl+P to save as PDF
-      const win = window.open("", "_blank");
-      if (win) { win.document.write(data.html); win.document.close(); }
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        alert(data?.error || "Erro ao gerar PDF");
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `curriculo-${language}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
     } catch (e: any) {
       alert("Erro ao gerar PDF: " + e.message);
     } finally {
@@ -726,6 +809,7 @@ export default function Home() {
                     </div>
                     <EditableInput label="GitHub URL" value={githubUrl} onBlur={(v: string) => { setGithubUrl(v); handleUpdateProfile('portfolio', v); }} />
                     <EditableInput label="LinkedIn URL" value={linkedinUrl} onBlur={(v: string) => setLinkedinUrl(v)} />
+                    <EditableInput label="Site Profissional" value={professionalSite} onBlur={(v: string) => { setProfessionalSite(v); handleUpdateProfile('professionalSite', v); }} placeholder="https://seusite.com" />
                  </div>
               </div>
 
@@ -761,16 +845,28 @@ export default function Home() {
                     </h3>
                     
                     {resultGit?.data?.length > 0 ? (
-                      <div className="space-y-2">
-                        {resultGit.data.map((p: any) => (
-                          <ProjectAccordion
-                            key={p.id}
-                            p={p}
-                            provider={provider}
-                            language={language}
-                            handleUpdateProject={handleUpdateProject}
+                      <div className="space-y-3">
+                        <label className="flex items-center justify-between gap-4 rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-3 text-sm text-neutral-300">
+                          <span className="font-medium">Incluir ações e resultados em todos os projetos</span>
+                          <input
+                            type="checkbox"
+                            checked={resultGit.data.every((p: any) => p.includeResultsInResume !== false)}
+                            onChange={(e) => handleToggleAllProjectResultsInResume(e.target.checked)}
+                            className="h-4 w-4 rounded border-neutral-700 bg-neutral-900 text-orange-500 focus:ring-orange-500/40"
                           />
-                        ))}
+                        </label>
+
+                        <div className="space-y-2">
+                          {resultGit.data.map((p: any) => (
+                            <ProjectAccordion
+                              key={p.id}
+                              p={p}
+                              provider={provider}
+                              language={language}
+                              handleUpdateProject={handleUpdateProject}
+                            />
+                          ))}
+                        </div>
                       </div>
                     ) : (
                       <div className="p-12 text-center bg-neutral-950 border border-neutral-800 rounded-2xl border-dashed">
@@ -803,11 +899,18 @@ export default function Home() {
            <div className="flex flex-col gap-4">
              <div>
                <h2 className="text-2xl font-bold text-white">📄 Exportar Currículo (A4)</h2>
-               <p className="text-neutral-400 text-sm mt-1">Abre o currículo formatado em layout A4 profissional. Use <kbd className="px-1.5 py-0.5 bg-neutral-800 rounded text-xs">Ctrl+P</kbd> → <em>Salvar como PDF</em> no navegador.</p>
+               <p className="text-neutral-400 text-sm mt-1">Baixe um PDF limpo sem cabeçalho, rodapé, URL ou data do navegador. Você também pode abrir a prévia A4 quando quiser revisar antes.</p>
              </div>
              <div className="flex flex-col sm:flex-row gap-3">
+               <button
+                 onClick={handleGeneratePdf}
+                 disabled={loadingPdf}
+                 className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold transition-colors disabled:opacity-50"
+               >
+                 {loadingPdf ? "Gerando PDF..." : "⬇️ Baixar PDF limpo"}
+               </button>
                <a
-                 href={`/cv?lang=${language}&github=${encodeURIComponent(githubUrl)}&linkedin=${encodeURIComponent(linkedinUrl)}`}
+                 href={`/cv?lang=${language}&provider=${provider}&github=${encodeURIComponent(githubUrl)}&linkedin=${encodeURIComponent(linkedinUrl)}&site=${encodeURIComponent(professionalSite)}`}
                  target="_blank"
                  rel="noopener noreferrer"
                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-bold transition-colors"
@@ -815,7 +918,7 @@ export default function Home() {
                  📄 Abrir Currículo A4
                </a>
                <a
-                 href={`/cv?lang=en&github=${encodeURIComponent(githubUrl)}&linkedin=${encodeURIComponent(linkedinUrl)}`}
+                 href={`/cv?lang=en&provider=${provider}&github=${encodeURIComponent(githubUrl)}&linkedin=${encodeURIComponent(linkedinUrl)}&site=${encodeURIComponent(professionalSite)}`}
                  target="_blank"
                  rel="noopener noreferrer"
                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg font-bold transition-colors border border-neutral-700"
