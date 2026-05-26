@@ -1,3 +1,9 @@
+# Preferencias do usuario
+
+- Quando o usuario enviar `#commit`, verificar o status do Git, revisar os arquivos alterados do projeto, criar uma mensagem de commit adequada e executar o commit incluindo apenas as alteracoes relevantes do projeto.
+
+--- project-doc ---
+
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 

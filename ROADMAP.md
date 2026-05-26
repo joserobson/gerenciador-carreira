@@ -9,6 +9,7 @@
 
 - [x] Next.js app scaffold (App Router)
 - [x] Prisma + PostgreSQL (docker-compose)
+- [x] Inicialização para Codex com instruções do agente e fluxo `#commit`
 - [x] AI Load Balancer híbrido (Cerebras → Groq → OpenRouter → Claude → Gemini)
 - [x] Endpoint `/api/test-keys` para validar chaves configuradas
 - [x] Endpoint `/api/refine` — refinamento de texto via IA (usado por RefinableBlock)
@@ -38,10 +39,13 @@
 
 ## Módulo 3 — Currículo Mestre (SSOT)
 
-- [x] Editor inline de perfil (nome, título, email, skills, GitHub, LinkedIn)
+- [x] Editor inline de perfil (nome, título, email, skills, GitHub, LinkedIn, site profissional)
 - [x] Auto-save no blur (sem botão de salvar)
 - [x] RefinableBlock: edição manual + refinamento por IA em qualquer campo de texto
 - [x] Seção de projetos/experiência com campos: nome, empresa, cargo, datas, techs, desafios, ações
+- [x] Controle por projeto para incluir/excluir do currículo
+- [x] Controle por projeto e em lote para incluir/excluir ações e resultados no currículo
+- [x] Ordenação híbrida dos projetos no currículo (ordem manual opcional + abertos primeiro + datas decrescentes)
 - [-] Educação e certificações — **não há modelo nem UI para isso ainda**
 - [-] Idiomas — **não há modelo nem UI para isso ainda**
 
@@ -51,9 +55,9 @@
 
 - [x] Currículo A4 em `/cv` com suporte PT-BR e EN-US
 - [x] Gerador de "Sobre Mim" para LinkedIn
-- [-] `/api/generate-pdf` existe mas não gera arquivo — abre HTML numa aba para o usuário salvar via Ctrl+P
+- [x] Tradução assíncrona do currículo em inglês com progresso, aviso de erro e parser robusto de JSON da IA
+- [x] Exportação direta para PDF limpo via Puppeteer sem cabeçalho/rodapé/URL/data do navegador
 - [ ] Portfólio web gerado automaticamente (página pública)
-- [ ] Exportação direta para PDF sem depender do browser print
 
 ---
 
