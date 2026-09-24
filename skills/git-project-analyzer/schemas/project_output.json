@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProjectAnalysisOutput",
+  "type": "object",
+  "required": [
+    "projectName",
+    "period",
+    "inferredRole",
+    "projectSummary",
+    "technologies",
+    "starHighlights",
+    "bulletPointsCV"
+  ],
+  "properties": {
+    "projectName": { "type": "string" },
+    "period": {
+      "type": "object",
+      "required": ["start", "end", "totalCommits"],
+      "properties": {
+        "start": { "type": "string" },
+        "end": { "type": "string" },
+        "totalCommits": { "type": "integer" }
+      }
+    },
+    "inferredRole": { "type": "string" },
+    "projectSummary": { "type": "string" },
+    "technologies": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "starHighlights": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["challenge", "action", "result"],
+        "properties": {
+          "challenge": { "type": "string" },
+          "action": { "type": "string" },
+          "result": { "type": "string" }
+        }
+      }
+    },
+    "bulletPointsCV": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}
